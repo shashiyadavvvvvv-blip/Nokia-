@@ -97,7 +97,7 @@ function updateCartCount(){ const count=getCart().reduce((s,i)=>s+i.qty,0); docu
       details.innerHTML=html;
     }
     renderCart();
-    const PAYPAL_CLIENT_ID='YOUR_PAYPAL_CLIENT_ID';
+    const PAYPAL_CLIENT_ID='Acrbg7p4034Ar9tele21';
     const s=document.createElement('script');
     s.src=`https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD`;
     s.onload=()=>{ if(cartItemsDetailed().length===0)return;
