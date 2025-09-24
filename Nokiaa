@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Order Confirmed</title><link rel="stylesheet" href="styles.css" /></head>
+<body>
+  <header><h1>Thank you!</h1><a href="index.html">Back to shop</a></header>
+  <main>
+    <p>Payment successful. Your order id: <strong id="order-id">-</strong>.</p>
+  </main>
+  <script>
+    const params=new URLSearchParams(location.search);
+    const id=params.get('order')||'-';
+    document.getElementById('order-id').innerText=id;
+  </script>
+</body>
+</html> body{font-family:system-ui,Segoe UI,Roboto,Arial;max-width:900px;margin:0 auto;padding:16px;}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+.card{border:1px solid #ddd;padding:12px;border-radius:8px;text-align:center;}
+.thumb{width:100%;height:150px;object-fit:contain;margin-bottom:8px;}
+.price{font-weight:700;}
+.add-btn{background:#111;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;}
+.cart-list{list-style:none;padding:0;}
+.total{font-weight:800;margin-top:8px;}
+.muted{color:#666;font-size:0.9em;margin-left:8px;}
+.note{font-size:0.9em;color:#666;margin-top:12px;}
+a.cart-link{background:#f3f3f3;padding:6px 8px;border-radius:8px;text-decoration:none;color:#111;}
