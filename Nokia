@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nokia Old Phones Shop</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Nokia Old Phones</h1>
+    <a class="cart-link" href="checkout.html">Cart (<span id="cart-count">0</span>)</a>
+  </header>
+
+  <main>
+    <section id="products" class="grid"></section>
+  </main>
+
+  <script src="product.js"></script>
+  <script src="cart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProducts();
+      updateCartCount();
+    });
+  </script>
+</body>
+</html> const PRODUCTS = [
+  { id: 1, title: "Nokia 3310 Classic", price: 1500, img: "https://upload.wikimedia.org/wikipedia/commons/3/35/Nokia_3310.png", category: "mobile" },
+  { id: 2, title: "Nokia 1100", price: 1200, img: "https://upload.wikimedia.org/wikipedia/commons/f/f8/Nokia_1100.jpg", category: "mobile" },
+  { id: 3, title: "Nokia 6600", price: 2000, img: "https://upload.wikimedia.org/wikipedia/commons/1/16/Nokia_6600.jpg", category: "mobile" },
+  { id: 4, title: "Nokia N95", price: 3000, img: "https://upload.wikimedia.org/wikipedia/commons/7/74/Nokia_N95.jpg", category: "mobile" },
+  { id: 5, title: "Nokia E72", price: 2500, img: "https://upload.wikimedia.org/wikipedia/commons/4/41/Nokia_E72.jpg", category: "mobile" },
+  { id: 6, title: "Nokia Lumia 520", price: 3500, img: "https://upload.wikimedia.org/wikipedia/commons/7/7d/Nokia_Lumia_520.jpg", category: "mobile" },
+  { id: 7, title: "Nokia 808 PureView", price: 4500, img: "https://upload.wikimedia.org/wikipedia/commons/c/cb/Nokia_808_PureView.jpg", category: "mobile" }
+];
+
+function formatPrice(n){ return "₹" + n.toFixed(2); }
+
+function renderProducts(){
+  const container = document.getElementById('products');
+  container.innerHTML = '';
+  PRODUCTS.forEach(p => {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.innerHTML = `
+      <img src="${p.img}" alt="${p.title}" class="thumb">
+      <h3>${p.title}</h3>
+      <p class="price">${formatPrice(p.price)}</p>
+      <button data-id="${p.id}" class="add-btn">Add to cart</button>
+    `;
+    container.appendChild(card);
+  });
+
+  document.querySelectorAll('.add-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = Number(btn.dataset.id);
+      addToCart(id, 1);
+      updateCartCount();
+      alert('Added to cart');
+    });
+  });
+} const CART_KEY = 'simple_shop_cart_v1';
+
+function getCart(){ try { return JSON.parse(localStorage.getItem(CART_KEY)||'[]'); } catch(e){ return []; } }
+function saveCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+function addToCart(productId, qty=1){ const cart=getCart(); const item=cart.find(i=>i.id===productId); if(item) item.qty+=qty; else cart.push({id:productId, qty}); saveCart(cart); }
+function clearCart(){ localStorage.removeItem(CART_KEY); }
+function cartTotal(){ const cart=getCart(); let total=0; cart.forEach(it=>{ const p=PRODUCTS.find(x=>x.id===it.id); if(p) total+=p.price*it.qty; }); return total; }
+function cartItemsDetailed(){ const cart=getCart(); return cart.map(it=>{ const p=PRODUCTS.find(x=>x.id===it.id); return {...p, qty:it.qty}; }); }
+function updateCartCount(){ const count=getCart().reduce((s,i)=>s+i.qty,0); document.getElementById('cart-count').innerText=count; } <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Checkout - Nokia Old Phones</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header><h1>Checkout</h1><a href="index.html">Back to shop</a></header>
+  <main>
+    <section id="cart-details"></section>
+    <div id="paypal-button-container"></div>
+    <p class="note">Replace <code>YOUR_PAYPAL_CLIENT_ID</code> with your sandbox client id.</p>
+  </main>
+
+  <script src="product.js"></script>
+  <script src="cart.js"></script>
+  <script>
+    function renderCart(){
+      const details=document.getElementById('cart-details');
+      const items=cartItemsDetailed();
+      if(items.length===0){ details.innerHTML='<p>Your cart is empty.</p>'; return; }
+      let html='<ul class="cart-list">';
+      items.forEach(it=>{ html+=`<li>${it.title} — ₹${(it.price*it.qty).toFixed(2)} <span class="muted">(${it.qty} × ₹${it.price.toFixed(2)})</span></li>`; });
+      html+='</ul>'; html+=`<p class="total">Total: ₹${cartTotal().toFixed(2)}</p>`;
+      details.innerHTML=html;
+    }
+    renderCart();
+    const PAYPAL_CLIENT_ID='YOUR_PAYPAL_CLIENT_ID';
+    const s=document.createElement('script');
+    s.src=`https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD`;
+    s.onload=()=>{ if(cartItemsDetailed().length===0)return;
+      paypal.Buttons({
+        createOrder:function(data,actions){ const totalUsd=(cartTotal()/83).toFixed(2); return actions.order.create({purchase_units:[{amount:{value:totalUsd,currency_code:'USD'}}]}); },
+        onApprove:function(data,actions){ return actions.order.capture().then(function(details){ clearCart(); window.location.href='success.html?order='+encodeURIComponent(details.id); }); },
+        onError:function(err){alert('PayPal error: '+err);console.error(err);}
+      }).render('#paypal-button-container');
+    };
+    document.head.appendChild(s);
+  </script>
+</body>
+</html>
